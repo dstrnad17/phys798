@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 
-# imported the requests library
-import requests
-import numpy as np
+# import pandas as pd
 import pandas as pd
-from pandas.compat import StringIO
 
-data = "https://spdf.gsfc.nasa.gov/pub/data/aaa_special-purpose-datasets/empirical-magnetic-field-modeling-database-with-TS07D-coefficients/database/ascii/cluster1_2001_avg_300_omni.dat"
+# import csv module
+import csv
+
+
+from os import listdir
+from os.path import isfile, join
+
+mypath = "C:/Users/erikj/OneDrive/Documents/Spring 2022/Dr Weigel/ascii"
+
+
+files = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+main_dataframe = pd.DataFrame(pd.read_csv(files[0]))	
   
-# data file
-r = requests.get(data) # create HTTP response object
-  
-# send a HTTP request to the server and save
-# the HTTP response in a response object called r
-with open("cluster1_2001_avg_300_omni.dat",'wb') as f:
-  
-  
-    # write the contents of the response (r.content)
-    # to a new file in binary mode.
-    f.write(r.content)
-    
-cluster_1_2001 = np.loadtxt( 'cluster1_2001_avg_300_omni.dat', unpack=True )
+#for i in range(1,len(files)):
+for i in range(2):
+    data = pd.read_table(files[i])
+    df = pd.DataFrame(data)
+    main_dataframe = pd.concat([main_dataframe,df],axis=1)
