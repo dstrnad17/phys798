@@ -2,6 +2,7 @@
 
 # import pandas as pd
 import pandas as pd
+from pd.compat import StringIO
 
 # import csv module
 import csv
@@ -15,10 +16,10 @@ mypath = "C:/Users/erikj/OneDrive/Documents/Spring 2022/Dr Weigel/ascii"
 
 files = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
-main_dataframe = pd.DataFrame(pd.read_csv(files[0]))	
+main_dataframe = pd.DataFrame(pd.read_csv(files[0])	
   
-#for i in range(1,len(files)):
-for i in range(2):
-    data = pd.read_table(files[i])
+
+for i in range(1,len(files)):
+    data = pd.read_csv(StringIO(files[i]), sep="\s+")
     df = pd.DataFrame(data)
-    main_dataframe = pd.concat([main_dataframe,df],axis=1)
+    main_dataframe = pd.concat([main_dataframe,df])
