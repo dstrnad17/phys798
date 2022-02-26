@@ -6,7 +6,7 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-import logging, sys
+import logging, sys, os
 
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
@@ -34,75 +34,77 @@ import torch.nn.functional as F
 # sys.stdout = LogFile('stdout')
 # sys.stderr = LogFile('stderr')
 
+logging.basicConfig(filename='Linear Regression.log', encoding='utf-8', level=logging.DEBUG)
+
 # Define the data
 T = np.array([1,1])
 T = T.reshape(2,1)
 n = 100
 
+# Create empty file
+logfile = os.path.realpath(__file__)[0:-2] + "log"
+with open(logfile, "w") as f: pass
 
 
+def xprint(msg):
+    print(msg)
+    f = open(logfile, "a")
+    f.write(msg + "\n")
+    f.close()
 
-# Define loss function
-def mse(t1, t2):
-    diff = t1 - t2
-    return torch.sum(diff * diff) / diff.numel()
-
-# Define model 1 (manual)
-def model(x):
-    return x@w.t()
-
-
-# Define a utility function to train the model
-def fit(num_epochs, model, loss_fn, opt, inputs):
-    for epoch in range(num_epochs):
-        for xb,yb in train_dl:
-            # Generate predictions
-            pred = model(xb)
-            loss = loss_fn(pred, yb)
-            # Perform gradient descent
-            loss.backward()
-            opt.step()
-            opt.zero_grad()
-    return model(inputs)
-
-class SimpleNet(nn.Module):
-    # Initialize the layers
-    def __init__(self):
-        super().__init__()
-        self.linear1 = nn.Linear(2, 2)
-        self.act1 = nn.ReLU() # Activation function
-        self.linear2 = nn.Linear(2, 1)
+def reg_compare(T,n):
+    # Define loss function
+    def mse(t1, t2):
+        diff = t1 - t2
+        return torch.sum(diff * diff) / diff.numel()
     
-    # Perform the computation
-    def forward(self, x):
-        x = self.linear1(x)
-        x = self.act1(x)
-        x = self.linear2(x)
-        return x
+    # Define model 1 (manual)
+    def model(x):
+        return x@w.t()
+    
+    
+    # Define a utility function to train the model
+    def fit(num_epochs, model, loss_fn, opt, inputs):
+        for epoch in range(num_epochs):
+            for xb,yb in train_dl:
+                # Generate predictions
+                pred = model(xb)
+                loss = loss_fn(pred, yb)
+                # Perform gradient descent
+                loss.backward()
+                opt.step()
+                opt.zero_grad()
+        return model(inputs)
+    
+    class SimpleNet(nn.Module):
+        # Initialize the layers
+        def __init__(self):
+            super().__init__()
+            self.linear1 = nn.Linear(2, 2)
+            self.act1 = nn.ReLU() # Activation function
+            self.linear2 = nn.Linear(2, 1)
+        
+        # Perform the computation
+        def forward(self, x):
+            x = self.linear1(x)
+            x = self.act1(x)
+            x = self.linear2(x)
+            return x
+    
+    
+    # Define model 2 (PyTorch)
+    model2 = nn.Linear(2, 1)
+    opt_2 = torch.optim.SGD(model2.parameters(), lr=.001)
+    loss_fn = F.mse_loss
+    #loss = loss_fn(model2(inputs), targets)
+    
+    
+    # Define model 3 (Neural Network)
+    model3 = SimpleNet()
+    opt_n = torch.optim.SGD(model3.parameters(), .003)
+    loss_fn = F.mse_loss
 
 
-# Define model 2 (PyTorch)
-model2 = nn.Linear(2, 1)
-opt_2 = torch.optim.SGD(model2.parameters(), lr=.001)
-loss_fn = F.mse_loss
-#loss = loss_fn(model2(inputs), targets)
-
-
-# Define model 3 (Neural Network)
-model3 = SimpleNet()
-opt_n = torch.optim.SGD(model3.parameters(), .001)
-loss_fn = F.mse_loss
-
-
-
-error_closed_sum = 0
-error_1grad_sum = 0
-error_2grad_sum = 0
-error_network_sum = 0
-
-# Set number of iterations
-N = 10
-for j in range(N):
     # Define Data
     X = 10 * np.random.rand(n,1)
     b = np.ones_like(X)
@@ -115,11 +117,11 @@ for j in range(N):
 
 
     # Define PyTorch tensors 
-    X_tens = torch.tensor(X)
-    X1_tens = torch.tensor(X1)
+    #X_tens = torch.tensor(X)
+    #X1_tens = torch.tensor(X1)
     #X1_tens = x
     X1_d_tens = torch.from_numpy(X1_d)
-    F1_tens = torch.from_numpy(F1)
+    #F1_tens = torch.from_numpy(F1)
     Y1_tens = torch.from_numpy(Y1)
     Y2_d_tens = torch.from_numpy(Y1_d)
     #Y1_tens = y
@@ -128,7 +130,7 @@ for j in range(N):
     # Define model inputs and targets and initalize weights and bias
     #inputs_d = X1_d_tens
     inputs = X1_d_tens
-    inputs2 = X1_tens
+    #inputs2 = X1_tens
     targets = Y1_tens
     targets2 = Y2_d_tens
     w = torch.randn(1,2, requires_grad=True)
@@ -145,27 +147,45 @@ for j in range(N):
     p = np.dot(X1.transpose(), Y1)
     theta_closed =  h_inv @ p 
     y1_closed = np.dot(X1, theta_closed)
-    error_closed_sum += np.sqrt(1/n*np.dot((F1-y1_closed).transpose(),(F1-y1_closed)))
+    e_closed_sum = np.sqrt(1/n*np.dot((F1-y1_closed).transpose(),(F1-y1_closed)))
     
     #Train model for 100 epochs
     # Iterate and modify via gradient decent
-    for i in range(100):
+    for i in range(500):
         preds = model(inputs)
         loss = mse(preds, targets)
         loss.backward()
         with torch.no_grad():
-            w -= w.grad * .001
+            w -= w.grad * .01
             w.grad.zero_()
     y1_grad = preds
-    error_1grad_sum += np.sqrt(1/n*np.dot((F1-y1_grad.detach().numpy()).transpose(),(F1-y1_grad.detach().numpy())))
+    e_1grad_sum = np.sqrt(1/n*np.dot((F1-y1_grad.detach().numpy()).transpose(),(F1-y1_grad.detach().numpy())))
     
     # Train the model 2 for 100 epochs
     y2_grad = fit(100, model2, loss_fn, opt_2, inputs)
-    error_2grad_sum += np.sqrt(1/n*np.dot((F1-y2_grad.detach().numpy()).transpose(),(F1-y2_grad.detach().numpy())))
+    e_2grad_sum = np.sqrt(1/n*np.dot((F1-y2_grad.detach().numpy()).transpose(),(F1-y2_grad.detach().numpy())))
     
     # Train model 3 for 100 epochs
-    y3_network = fit(100, model3, loss_fn, opt_n, inputs)
-    error_network_sum += np.sqrt(1/n*np.dot((F1-y3_network.detach().numpy()).transpose(),(F1-y3_network.detach().numpy())))
+    y3_network = fit(500, model3, loss_fn, opt_n, inputs)
+    e_network_sum = np.sqrt(1/n*np.dot((F1-y3_network.detach().numpy()).transpose(),(F1-y3_network.detach().numpy())))
+    data_return = [X, Y1, y1_closed, y1_grad, y2_grad, y3_network, F1]
+    return e_closed_sum, e_1grad_sum, e_2grad_sum, e_network_sum, data_return
+
+error_closed_sum = 0
+error_1grad_sum = 0
+error_2grad_sum = 0
+error_network_sum = 0
+
+# Set number of iterations
+N = 100
+for j in range(N):
+    e_closed_sum, e_1grad_sum, e_2grad_sum, e_network_sum, data_return = reg_compare(T,n)
+    error_closed_sum += e_closed_sum
+    error_1grad_sum += e_1grad_sum
+    error_2grad_sum += e_2grad_sum
+    error_network_sum += e_network_sum
+    if j < N-1:
+        del data_return
 
 # Calculate average error
 error_closed = error_closed_sum / N
@@ -173,20 +193,20 @@ error_1grad = error_1grad_sum / N
 error_2grad = error_2grad_sum / N
 error_network = error_network_sum / N
 
-print('Average Matrix inverion solution error = ',error_closed)
-print('Average Manual model solution error = ',error_1grad)
-print('Average Pytorch model solution error = ',error_2grad)
-print('Average Single layer neural network solution error = ',error_network)
+xprint('Average Matrix inverion solution error = '+ str(error_closed))
+xprint('Average Manual model solution error = '+ str(error_1grad))
+xprint('Average Pytorch model solution error = '+ str(error_2grad))
+xprint('Average Single layer neural network solution error = '+ str(error_network))
 
 
 # Plot data points
 fig, bx = plt.subplots()
-bx.scatter(X,Y1)
-bx.plot(X,y1_closed, color='k')
-bx.plot(X,y1_grad.detach().numpy(), color='g')
-bx.plot(X,y2_grad.detach().numpy(), color='c')
-bx.plot(X,y3_network.detach().numpy(), color='m')
-bx.plot(X,F1, color='r')
+bx.scatter(data_return[0],data_return[1])
+bx.plot(data_return[0],data_return[2], color='k')
+bx.plot(data_return[0],data_return[3].detach().numpy(), color='g')
+bx.plot(data_return[0],data_return[4].detach().numpy(), color='c')
+bx.plot(data_return[0],data_return[5].detach().numpy(), color='m')
+bx.plot(data_return[0],data_return[6], color='r')
 plt.xlabel("X")
 plt.ylabel("Y")
 plt.title("Linear Regression")
