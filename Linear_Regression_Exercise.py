@@ -28,13 +28,13 @@ import torch.nn.functional as F
 #         for handler in self.logger.handlers:
 #             handler.flush()
 
-# logging.basicConfig(filename = "Linear Regression Exercise.log")
+# logging.basicConfig(filename = "Linear_Regression_Exercise.log")
 
 # # Redirect stdout and stderr
 # sys.stdout = LogFile('stdout')
 # sys.stderr = LogFile('stderr')
 
-logging.basicConfig(filename='Linear Regression.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename='Linear_Regression_Exercise.log', encoding='utf-8', level=logging.DEBUG)
 
 # Define the data
 T = np.array([1,1])
@@ -193,9 +193,9 @@ error_1grad = error_1grad_sum / N
 error_2grad = error_2grad_sum / N
 error_network = error_network_sum / N
 
-xprint('Average Matrix inverion solution error = '+ str(error_closed))
-xprint('Average Manual model solution error = '+ str(error_1grad))
-xprint('Average Pytorch model solution error = '+ str(error_2grad))
+xprint('Average Matrix inversion OLS solution error = '+ str(error_closed))
+xprint('Average Manual OLS solution error = '+ str(error_1grad))
+xprint('Average Pytorch OLS solution error = '+ str(error_2grad))
 xprint('Average Single layer neural network solution error = '+ str(error_network))
 
 
@@ -210,13 +210,8 @@ bx.plot(data_return[0],data_return[6], color='r')
 plt.xlabel("X")
 plt.ylabel("Y")
 plt.title("Linear Regression")
-bx.legend(['Matrix Inversion', 'Manual Model', 'PyTorch Model', 'Single Layer Neural Net', 'True','Data'])
+bx.legend(['Matrix Inversion OLS', 'Manual OLS ', 'Pytorch OLS', 'Single Layer Neural Net', 'True','Data'])
 plt.show
 
-plt.savefig('Comparison plot.pdf') 
-
-
-
-
-
-
+plt.savefig('Linear_Regression_Exercise.pdf')
+plt.savefig('Linear_Regression_Exercise.png')
