@@ -1,4 +1,0 @@
-Average Matrix inverion solution error = [[0.12251123]]
-Average Manual model solution error = [[0.12839181]]
-Average Pytorch model solution error = [[0.12695325]]
-Average Single layer neural network solution error = [[0.641548]]
