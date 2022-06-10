@@ -1,4 +1,6 @@
-The linear regression exercise script defines three linear models that fit input data to target data using a least squares loss loss function.  All three models are implemented using Facebook developed Pytorch package in python.
+The linear regression exercise script defines three linear models that fit input data to target data using a least squares loss loss function.  All three models are implemented using Facebook developed Pytorch package in python. Model solutions were compared to solution calculated using matrix inversion to evaluate model performance
+
+Data used to test the models was created using numpys rand() function to define an X value as well as an random offset. Y was calculated by added the offset to the random X. Both X and Y were converted to tensors to make them compatable with 
 
 ![](Linear_Regression_Exercise.png)
 
