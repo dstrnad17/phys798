@@ -126,12 +126,12 @@ def test():
     for batch_idx, (data, target) in enumerate(test_dl):
         data, target = Variable(data), Variable(target)
         output = sat_model(data)
-    return loss_fn(output,target).detach().numpy(), output
+    return loss_fn(output,target).detach().numpy(), output.detach().numpy(), target.detach().numpy()
 
 # Train model 3 for 100 epochs
 sat_nn_regresion_train = train(5)
 #error_train = np.sqrt(np.dot((train_targets.detach().numpy()-sat_nn_regresion_train.detach().numpy()).transpose(),(train_targets.detach().numpy()-sat_nn_regresion_train.detach().numpy())))
-sat_nn_regresion_test, output = test()
+sat_nn_regresion_test, output, target = test()
 #error_test = np.sqrt(np.dot((test_targets.detach().numpy()-sat_nn_regresion_test.detach().numpy()).transpose(),(test_targets.detach().numpy()-sat_nn_regresion_test.detach().numpy())))
 
 xprint('Single layer neural network training data error = '+ str(sat_nn_regresion_train) + '\n')
@@ -145,40 +145,34 @@ plt.ylabel("Loss")
 plt.title("Training Loss")
 plt.show
 
-plt.savefig('Simple_sat_loss.pdf') 
+plt.savefig('Simple_sat_loss_All_Data.pdf') 
 
 fig, bx = plt.subplots()
-bx.plot(Field_test[0])
+bx.plot(target[0])
 bx.plot(output[0])
-bx.plot(output[1])
-bx.plot(output[2])
 bx.legend(['Bx_true', 'output 1','output 2', 'output 3'])
 plt.ylabel("B_x")
 plt.title("Measured Bx versus Model Output")
 plt.show
 
-plt.savefig('True_vs_Model_Bx.pdf') 
+plt.savefig('True_vs_Model_Bx_All_Data.pdf') 
 
 fig, by = plt.subplots()
-by.plot(Field_test[1])
-by.plot(output[0])
+by.plot(target[1])
 by.plot(output[1])
-by.plot(output[2])
-by.legend(['Bx_true', 'output 1','output 2', 'output 3'])
-plt.ylabel("B_x")
+by.legend(['By_true', 'output 1','output 2', 'output 3'])
+plt.ylabel("B_y")
 plt.title("Measured By versus Model Output")
 plt.show
 
-plt.savefig('True_vs_Model_By.pdf') 
+plt.savefig('True_vs_Model_By_All_Data.pdf') 
 
 fig, bz = plt.subplots()
-bz.plot(Field_test[2])
-bz.plot(output[0])
-bz.plot(output[1])
+bz.plot(target[2])
 bz.plot(output[2])
-bz.legend(['Bx_true', 'output 1','output 2', 'output 3'])
-plt.ylabel("B_x")
+bz.legend(['Bz_true', 'output 1','output 2', 'output 3'])
+plt.ylabel("B_z")
 plt.title("Measured Bz versus Model Output")
 plt.show
 
-plt.savefig('True_vs_Model_Bz.pdf') 
+plt.savefig('True_vs_Model_Bz_All_Data.pdf') 
