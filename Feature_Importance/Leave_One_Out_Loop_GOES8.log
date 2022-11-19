@@ -1,0 +1,32 @@
+Model Prediction Efficiancy All Inputs 
+0.4384449
+0.3872394
+0.7521813
+Model Predicion Efficiency Remove r[km]
+0.41735062
+0.4142693
+0.7481116
+Model Predicion Efficiency Remove theta[deg]
+0.3600272
+0.27504858
+0.75107723
+Model Predicion Efficiency Remove phi[deg]
+0.12655142
+0.049914528
+0.16783209
+Model Predicion Efficiency Remove vsw[km/s]
+0.4156011
+0.39425325
+0.7343463
+Model Predicion Efficiency Remove ey[mV/m]
+0.41484362
+0.40515795
+0.7543412
+Model Predicion Efficiency Remove imfbz[nT]
+0.41953748
+0.3914779
+0.7503863
+Model Predicion Efficiency Remove nsw[1/cm^3]
+0.4162848
+0.37576213
+0.67293376
