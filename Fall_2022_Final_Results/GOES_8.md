@@ -25,9 +25,9 @@
 
 # GOES8_1996_Electric_Field_y
 
-![GOES8_1996_Electric_Field_y][GOES8_1996_Electric_Field_y.png]
+![GOES8_1996_Electric_Field_y][Plots/GOES8_1996_Electric_Field_y.png]
 
 # GOES8_1996_Electric_Field_y
 
-![GOES8_1996_Electric_Field_y][GOES8_1996_Electric_Field_y.png]
+![GOES8_1996_Electric_Field_y][Plots/GOES8_1996_Electric_Field_y.png]
 
