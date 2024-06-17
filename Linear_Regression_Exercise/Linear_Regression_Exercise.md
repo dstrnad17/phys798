@@ -2,7 +2,7 @@ The linear regression exercise script defines three linear models that fit input
 
 Data used to test the models was created using numpys rand() function to define an X value as well as an random offset. Y was calculated by added the offset to the random X. Both X and Y were converted to tensors to make them compatable with 
 
-![](Linear_Regression_Exercise.pdf)
+![](Linear_Regression_Exercise.png)
 
 Model 1: The minimization function and model are explicitly defined and gradient decent is performed using pytorches implementation in manualy defined loop.
 
