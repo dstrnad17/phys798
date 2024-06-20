@@ -177,13 +177,14 @@ error_2grad_sum = 0
 error_network_sum = 0
 
 # Set number of iterations
-N = 1
+N = 100
 for j in range(N):
     e_closed_sum, e_1grad_sum, e_2grad_sum, e_network_sum, data_return = reg_compare(T,n)
     error_closed_sum += e_closed_sum
     error_1grad_sum += e_1grad_sum
     error_2grad_sum += e_2grad_sum
     error_network_sum += e_network_sum
+    print('iter='+ str(j))
     if j < N-1:
         del data_return
 
