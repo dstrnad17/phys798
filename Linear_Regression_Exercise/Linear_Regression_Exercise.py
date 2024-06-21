@@ -46,7 +46,7 @@ logfile = os.path.realpath(__file__)[0:-2] + "log"
 with open(logfile, "w") as f: pass
 
 # Ask user for data type
-data_type = input("Data Type (Rand, Exp, Norm): ")
+data_type = input("Data Type (Rand, Exp, Norm, Noisy): ")
 iterations = int(input("Number of Iterations: "))
 
 def xprint(msg):
@@ -104,7 +104,7 @@ def reg_compare(T,n):
     
     # Define model 3 (Neural Network)
     model3 = SimpleNet()
-    opt_n = torch.optim.SGD(model3.parameters(), .001)
+    opt_n = torch.optim.SGD(model3.parameters(), .003)
     loss_fn = F.mse_loss
 
 
@@ -132,6 +132,17 @@ def reg_compare(T,n):
         X = 10 * np.random.normal(0,1,n)
         b = np.ones_like(X)
         X1 = np.column_stack((b, X))
+        X1_d = X1.astype(np.float32)
+        F1 = np.dot(X1, T)
+        eps = np.random.randn(n,1)
+        Y1 = F1 + eps
+        Y1_d = Y1.astype(np.float32)
+    elif data_type == 'Noisy':
+        X = 10 * np.random.rand(n,1)
+        noise = np.random.uniform(-1,1,X.shape)
+        Xn = X + noise
+        b = np.ones_like(Xn)
+        X1 = np.hstack((b,Xn))
         X1_d = X1.astype(np.float32)
         F1 = np.dot(X1, T)
         eps = np.random.randn(n,1)
@@ -235,7 +246,11 @@ bx.plot(data_return[0],data_return[5].detach().numpy(), color='m')
 bx.plot(data_return[0],data_return[6], color='r')
 plt.xlabel("X")
 plt.ylabel("Y")
-plt.title("Linear Regression")
+plt.title("Linear Regression,"+ data_type +" Iterations ="+ str(N))
+plt.text(5, 2, 'Avg Matrix inv OLS error = '+ str(error_closed), fontsize=8, bbox=dict(alpha=0))
+plt.text(5, 1.5, 'Avg Manual OLS error = '+ str(error_1grad), fontsize=8, bbox=dict(alpha=0))
+plt.text(5, 1, 'Avg Pytorch OLS error = '+ str(error_2grad), fontsize=8, bbox=dict(alpha=0))
+plt.text(5, 0.5, 'Avg SLNN OLS error = '+ str(error_network), fontsize=8, bbox=dict(alpha=0))
 bx.legend(['Matrix Inversion OLS', 'Manual OLS ', 'Pytorch OLS', 'Single Layer Neural Net', 'True','Data'])
 plt.show
 plt.savefig('Linear_Regression_Exercise.pdf')
