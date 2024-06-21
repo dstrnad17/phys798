@@ -45,6 +45,9 @@ n = 100
 logfile = os.path.realpath(__file__)[0:-2] + "log"
 with open(logfile, "w") as f: pass
 
+# Ask user for data type
+data_type = input("Data Type (Rand, Exp, Norm): ")
+iterations = int(input("Number of Iterations: "))
 
 def xprint(msg):
     print(msg)
@@ -101,19 +104,41 @@ def reg_compare(T,n):
     
     # Define model 3 (Neural Network)
     model3 = SimpleNet()
-    opt_n = torch.optim.SGD(model3.parameters(), .003)
+    opt_n = torch.optim.SGD(model3.parameters(), .001)
     loss_fn = F.mse_loss
 
 
     # Define Data
-    X = 10 * np.random.rand(n,1)
-    b = np.ones_like(X)
-    X1 = np.hstack((b,X))
-    X1_d = X1.astype(np.float32)
-    F1 = np.dot(X1, T)
-    eps = np.random.randn(n,1)
-    Y1 = F1 + eps
-    Y1_d = Y1.astype(np.float32)
+
+    if data_type == 'Rand':
+        X = 10 * np.random.rand(n,1)
+        b = np.ones_like(X)
+        X1 = np.hstack((b,X))
+        X1_d = X1.astype(np.float32)
+        F1 = np.dot(X1, T)
+        eps = np.random.randn(n,1)
+        Y1 = F1 + eps
+        Y1_d = Y1.astype(np.float32)
+    elif data_type == 'Exp':
+        X = 10 * np.random.exponential(scale=1.0, size=n)
+        b = np.ones_like(X)
+        X1 = np.column_stack((b, X))  # Use np.column_stack for horizontal stacking
+        X1_d = X1.astype(np.float32)
+        F1 = np.dot(X1, T.reshape(-1, 1))  # Calculate F1 as dot product of X1 and T (reshaped to column vector)
+        eps = np.random.randn(n, 1)
+        Y1 = F1 + eps
+        Y1_d = Y1.astype(np.float32)
+    elif data_type == 'Norm':
+        X = 10 * np.random.normal(0,1,n)
+        b = np.ones_like(X)
+        X1 = np.column_stack((b, X))
+        X1_d = X1.astype(np.float32)
+        F1 = np.dot(X1, T)
+        eps = np.random.randn(n,1)
+        Y1 = F1 + eps
+        Y1_d = Y1.astype(np.float32)
+    else:
+        print("Invalid Input")
 
 
     # Define PyTorch tensors 
@@ -177,7 +202,7 @@ error_2grad_sum = 0
 error_network_sum = 0
 
 # Set number of iterations
-N = 100
+N = iterations
 for j in range(N):
     e_closed_sum, e_1grad_sum, e_2grad_sum, e_network_sum, data_return = reg_compare(T,n)
     error_closed_sum += e_closed_sum
@@ -213,6 +238,5 @@ plt.ylabel("Y")
 plt.title("Linear Regression")
 bx.legend(['Matrix Inversion OLS', 'Manual OLS ', 'Pytorch OLS', 'Single Layer Neural Net', 'True','Data'])
 plt.show
-
 plt.savefig('Linear_Regression_Exercise.pdf')
 plt.savefig('Linear_Regression_Exercise.png')
