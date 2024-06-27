@@ -39,7 +39,7 @@ logging.basicConfig(filename='Linear_Regression_Exercise.log', encoding='utf-8',
 # Define the data
 T = np.array([1,1])
 T = T.reshape(2,1)
-n = 100
+n = 2
 
 # Create empty file
 logfile = os.path.realpath(__file__)[0:-2] + "log"
