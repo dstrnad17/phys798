@@ -15,6 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
+import pickle
 
 # Generate synthetic data
 torch.manual_seed(0)
@@ -55,8 +56,12 @@ for epoch in range(num_epochs):
 
 # Print learned parameters
 for name, param in model_torch.named_parameters():
-    if param.requires_grad:
-        print(name, param.data)
+    if name == 'linear.weight':
+        w_torch = param.data.item()
+        print(f'PyTorch model weight: {param.data.item():.7f}')
+    if name == 'linear.bias':
+        bias_torch = param.data.item()
+        print(f'PyTorch model bias: {param.data.item():.7f}')
 
 # Make predictions
 x = 4.0         # Input test value
@@ -83,12 +88,33 @@ y_predict = X_new_b.dot(theta)
 
 # Calculate error
 error_np = (y_predict[1] - y_true) / y_true
-print(error_np)
 
 # Display results
-print("Closed-Form Coefficients:", theta)
-print(f'True value for input x = {x} (not accounting for noise): {y_true:.4f}')
-print(f'Prediction for input x = {x} (NumPy): {y_predict[1].item():.4f}')
-print(f'Error (NumPy): {error_np}')
-print(f'Prediction for input x = {x} (PyTorch): {y_new_torch.item():.4f}')
-print(f'Error (PyTorch): {error_torch:.4f}')
+print(f'Closed-Form Weight: {theta[1].item():.7f}')
+print(f'Closed-Form Bias: {theta[0].item():.7f}')
+print(f'True value for input x = {x} (not accounting for noise): {y_true:.7f}')
+print(f'Prediction for input x = {x} (NumPy): {y_predict[1].item():.7f}')
+print(f'Error (NumPy): {error_np.item():.7f}')
+print(f'Prediction for input x = {x} (PyTorch): {y_new_torch.item():.7f}')
+print(f'Error (PyTorch): {error_torch:.7f}')
+
+# Create data file
+data = {
+    'Input (x)': [x],
+    'True Value': [y_true],
+    'PyTorch Weight': [w_torch],
+    'Pytorch Bias': [bias_torch],
+    'PyTorch Prediction': [y_new_torch.item()],
+    'PyTorch Error': [error_torch],
+    'Closed-Form (Numpy) Weight': [theta[1].item()],
+    'Closed-Form (Numpy) Bias': [theta[0].item()],
+    'NumPy Prediction': [y_predict[1].item()],
+    'NumPy Error': [error_np]
+}
+
+df = pd.DataFrame(data)
+df.to_csv('LR_results.csv', index=False)
+
+pickle_file = 'LR_results.pkl'
+with open(pickle_file, 'wb') as f:
+    pickle.dump(df, f)

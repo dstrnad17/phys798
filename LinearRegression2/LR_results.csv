@@ -1,0 +1,2 @@
+Input (x),True Value,PyTorch Weight,Pytorch Bias,PyTorch Prediction,PyTorch Error,Closed-Form (Numpy) Weight,Closed-Form (Numpy) Bias,NumPy Prediction,NumPy Error
+4.0,14.0,2.94050669670105,2.0798349380493164,13.841861724853516,-0.01129559108189174,2.9405120729267065,2.0798398813044074,13.841888173011233,[-0.0112937]
