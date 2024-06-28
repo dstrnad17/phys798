@@ -118,3 +118,18 @@ df.to_csv('LR_results.csv', index=False)
 pickle_file = 'LR_results.pkl'
 with open(pickle_file, 'wb') as f:
     pickle.dump(df, f)
+    
+# Plot
+y_torch_plot = w_torch * X_np + bias_torch
+y_np_plot = theta[1] * X_np + theta[0]
+y_true_plot = 3 * X_np + 2
+
+plt.scatter(X_np, y_np, color='blue', label='Data')
+plt.plot(X_np, y_torch_plot, color='red', label='Pytorch')
+plt.plot(X_np, y_np_plot, color = 'green', label='Numpy')
+plt.plot(X_np, y_true_plot, color = 'black', label='True')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Linear Regression with PyTorch and Numpy')
+plt.legend()
+plt.savefig('LRplot.pdf')
