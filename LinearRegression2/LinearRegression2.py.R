@@ -9,13 +9,19 @@ Created on Thu Jun 27 19:32:49 2024
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
 
 # Generate synthetic data
 torch.manual_seed(0)
 X = torch.randn(100, 1)  # 100 data points with a single feature
 y = 3 * X + 2 + torch.randn(100, 1) * 0.5  # y = 3X + 2 + noise
 
-# Define the linear regression model
+### Define the PyTorch linear regression model ###
 class LRTorch(nn.Module):
     def __init__(self):
         super(LRTorch, self).__init__()
@@ -24,17 +30,17 @@ class LRTorch(nn.Module):
     def forward(self, x):
         return self.linear(x)
 
-model = LRTorch()
+model_torch = LRTorch()
 
 # Define the loss function and optimizer
 crit = nn.MSELoss()
-opt = optim.SGD(model.parameters(), lr=0.01)
+opt = optim.SGD(model_torch.parameters(), lr=0.01)
 
 # Training loop
-num_epochs = 100
+num_epochs = 1000
 for epoch in range(num_epochs):
     # Forward pass: compute predicted y
-    y_pred = model(X)
+    y_pred = model_torch(X)
 
     # Compute and print loss
     loss = crit(y_pred, y)
@@ -48,11 +54,41 @@ for epoch in range(num_epochs):
         print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
 
 # Print learned parameters
-for name, param in model.named_parameters():
+for name, param in model_torch.named_parameters():
     if param.requires_grad:
         print(name, param.data)
 
 # Make predictions
-X_new = torch.tensor([[4.0]])
-y_new = model(X_new)
-print(f'Prediction for input 4.0: {y_new.item():.4f}')
+x = 4.0         # Input test value
+
+X_new_torch = torch.tensor([[x]])
+y_new_torch = model_torch(X_new_torch)
+
+# Calculate error
+y_true = 3 * x + 2
+error_torch = (y_new_torch.item() - y_true) / y_true
+
+# Redefine data with NumPy
+X_np = X.numpy()
+y_np = y.numpy()
+X_b = np.c_[np.ones((100, 1)), X_np]        # Concatenation with bias to create augmented matrix
+
+### Define the basic linear regression model ###
+theta = np.linalg.inv(X_b.T.dot(X_b)).dot(X_b.T).dot(y_np)
+
+# Make predictions
+X_new_np = np.array([[0], [x]])
+X_new_b = np.c_[np.ones((2, 1)), X_new_np]  # Add x0 = 1 to each instance
+y_predict = X_new_b.dot(theta)
+
+# Calculate error
+error_np = (y_predict[1] - y_true) / y_true
+print(error_np)
+
+# Display results
+print("Closed-Form Coefficients:", theta)
+print(f'True value for input x = {x} (not accounting for noise): {y_true:.4f}')
+print(f'Prediction for input x = {x} (NumPy): {y_predict[1].item():.4f}')
+print(f'Error (NumPy): {error_np}')
+print(f'Prediction for input x = {x} (PyTorch): {y_new_torch.item():.4f}')
+print(f'Error (PyTorch): {error_torch:.4f}')
