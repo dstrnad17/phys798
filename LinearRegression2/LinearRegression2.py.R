@@ -16,6 +16,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import pickle
+from tabulate import tabulate
 
 # Generate synthetic data
 torch.manual_seed(0)
@@ -90,8 +91,8 @@ y_predict = X_new_b.dot(theta)
 error_np = (y_predict[1] - y_true) / y_true
 
 # Display results
-print(f'Closed-Form Weight: {theta[1].item():.7f}')
-print(f'Closed-Form Bias: {theta[0].item():.7f}')
+print(f'Numpy Weight: {theta[1].item():.7f}')
+print(f'Numpy Bias: {theta[0].item():.7f}')
 print(f'True value for input x = {x} (not accounting for noise): {y_true:.7f}')
 print(f'Prediction for input x = {x} (NumPy): {y_predict[1].item():.7f}')
 print(f'Error (NumPy): {error_np.item():.7f}')
@@ -99,25 +100,18 @@ print(f'Prediction for input x = {x} (PyTorch): {y_new_torch.item():.7f}')
 print(f'Error (PyTorch): {error_torch:.7f}')
 
 # Create data file
-data = {
-    'Input (x)': [x],
-    'True Value': [y_true],
-    'PyTorch Weight': [w_torch],
-    'Pytorch Bias': [bias_torch],
-    'PyTorch Prediction': [y_new_torch.item()],
-    'PyTorch Error': [error_torch],
-    'Closed-Form (Numpy) Weight': [theta[1].item()],
-    'Closed-Form (Numpy) Bias': [theta[0].item()],
-    'NumPy Prediction': [y_predict[1].item()],
-    'NumPy Error': [error_np]
-}
 
-df = pd.DataFrame(data)
-df.to_csv('LR_results.csv', index=False)
+data = [
+    ["True", 3, 2, "N/A"],
+    ["Numpy", theta[1].item(), theta[0].item(), error_np.item()],
+    ["Pytorch", w_torch, bias_torch, error_torch]
+]
+headers = ["Method", "Weight", "Bias", "Error"]
 
-pickle_file = 'LR_results.pkl'
-with open(pickle_file, 'wb') as f:
-    pickle.dump(df, f)
+table = (tabulate(data, headers, tablefmt="grid"))
+print(table)
+with open('LRtable.txt', 'w') as f:
+    f.write(table)
     
 # Plot
 y_torch_plot = w_torch * X_np + bias_torch
@@ -125,11 +119,12 @@ y_np_plot = theta[1] * X_np + theta[0]
 y_true_plot = 3 * X_np + 2
 
 plt.scatter(X_np, y_np, color='blue', label='Data')
-plt.plot(X_np, y_torch_plot, color='red', label='Pytorch')
-plt.plot(X_np, y_np_plot, color = 'green', label='Numpy')
+plt.plot(X_np, y_torch_plot, color='red', label='Pytorch, err = {:.5f}'.format(error_torch), linewidth=5.0)
+plt.plot(X_np, y_np_plot, color = 'green', label='Numpy, err = {:.5f}'.format(error_np.item()))
 plt.plot(X_np, y_true_plot, color = 'black', label='True')
 plt.xlabel('x')
 plt.ylabel('y')
 plt.title('Linear Regression with PyTorch and Numpy')
 plt.legend()
 plt.savefig('LRplot.pdf')
+plt.savefig('LRplot.png')
